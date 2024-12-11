@@ -11,6 +11,7 @@ import { useAuth } from '../utils/AuthContext'
 export default function RegisterForm() {
   const {handleUserRegister}=useAuth()
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [credentials,setCredentials]=useState({
     name:'',
@@ -25,11 +26,40 @@ const handleInputChange=(e)=>{
       ...credentials,
       [name]:value
   })
-  console.log(credentials);
 }
+const handleSignup = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  try {
+    await handleUserRegister(e,credentials);
+  } catch (error) {
+    alert(error);
+  } finally {
+    setLoading(false);
+  }
+};
+const getPasswordInputClass = () => {
+  if (credentials.password.length < 8) {
+    return 'text-red-600';
+  } else {
+    return 'text-green-600';
+  }
+};
+const getconfPasswordInputClass = () => {
+  if (credentials.password!==credentials.confirmPassword) {
+    return 'text-red-600';
+  } else {
+    return 'text-green-600';
+  }
+};
   return (
     <div className="flex items-center justify-center min-h-screen">
     <div className="w-full max-w-[440px] space-y-6 rounded-lg bg-white p-6 shadow-sm">
+    {loading && (
+        <div className="absolute top-0 right-0 m-4 flex items-center justify-center">
+        <div className="loader"></div>
+      </div>
+      )}
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">Create an Account</h1>
       </div>
@@ -68,7 +98,7 @@ const handleInputChange=(e)=>{
                 placeholder="Enter your password"
                 value={credentials.password}
                 onChange={handleInputChange}
-                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 pr-10"
+                className={`border-gray-200 focus:border-blue-500 focus:ring-blue-500 pr-10 ${getPasswordInputClass()}`}
               />
             <Button
               className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
@@ -95,7 +125,7 @@ const handleInputChange=(e)=>{
               name="confirmPassword"
               value={credentials.confirmPassword}
               onChange={handleInputChange}
-              className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 pr-10"
+              className={`border-gray-200 focus:border-blue-500 focus:ring-blue-500 pr-10 ${getconfPasswordInputClass()}`}
               type={showConfirmPassword ? "text" : "password"}
             />
             <Button
@@ -113,7 +143,7 @@ const handleInputChange=(e)=>{
             </Button>
           </div>
         </div>
-        <Button onClick={(e)=>{handleUserRegister(e,credentials)}} className="w-full bg-[#4285f4] font-normal hover:bg-[#4285f4]/90" type="submit">
+        <Button onClick={(e)=>{handleSignup(e)}} className="w-full bg-[#4285f4] font-normal hover:bg-[#4285f4]/90" type="submit">
           Register
         </Button>
       </form>

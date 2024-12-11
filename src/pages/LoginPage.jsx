@@ -11,6 +11,7 @@ import { Eye, EyeOff } from "lucide-react"
 function LoginPage() {
     const {user,handleUserLogin}=useAuth()
     const navigate=useNavigate()
+    const [loading, setLoading] = useState(false);
     React.useEffect(() =>{
         if(user){
             navigate("/")
@@ -28,14 +29,35 @@ function LoginPage() {
             [name]:value
         })
     }
+    const handleLogin = async (e) => {
+      e.preventDefault();
+      setLoading(true);
+      try {
+        await handleUserLogin(e,credentials);
+        setTimeout(() => {
+          navigate("/");
+        }, 2000); // Redirect after 2 seconds
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
     const [showPassword, setShowPassword] = useState(false)
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa] p-4">
+          {loading && (
+        <div className="absolute top-0 right-0 m-4 flex items-center justify-center">
+        <div className="loader"></div>
+      </div>
+      )}
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl font-bold">Chat Room Login</CardTitle>
         </CardHeader>
+        
         <CardContent className="space-y-4">
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input 
@@ -73,9 +95,8 @@ function LoginPage() {
               </button>
             </div>
           </div>
-          <Button 
-            className="w-full bg-[#3b82f6] hover:bg-blue-600 text-white"
-          onClick={(e)=>{handleUserLogin(e,credentials)}}>
+          <Button onClick={(e)=>handleLogin(e)}
+            className="w-full bg-[#3b82f6] hover:bg-blue-600 text-white">
             Login
           </Button>
           <div className="text-center text-sm text-gray-500">
