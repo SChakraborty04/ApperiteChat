@@ -45,6 +45,7 @@ function Room() {
     getMessages()
     const unsubscribe=client.subscribe(`databases.${variables.appwriteDatabaseID}.collections.${variables.appwriteCollectionID}.documents`, response => {
         // Callback will be executed on changes for documents A and all files.
+        console.log(response);
         if(response.events.includes("databases.*.collections.*.documents.*.create")){
             console.log("New message created.")
             setMessages(prevState=>[...prevState,response.payload])
@@ -53,6 +54,12 @@ function Room() {
             console.log("Message deleted.")
             setMessages(prevState=>prevState.filter(message=>message.$id!==response.payload.$id))
         }
+        if(response.events.includes("databases.*.collections.*.documents.*.update")){
+          console.log("Message updated.")
+          setMessages(prevState => prevState.map(message => 
+            message.$id === response.payload.$id ? { ...message, ...response.payload } : message
+          ));
+      }
     });
     return ()=>{
         unsubscribe()
